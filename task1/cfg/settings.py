@@ -1,0 +1,25 @@
+# settings.py
+
+
+# Dataset path
+TRAIN_DATASET_NAME = "TIMIT"
+DF_PATH = f"datasets/{TRAIN_DATASET_NAME}/items_labeled.csv"
+
+# Trainer parameters
+BATCH_SIZE = 128
+VALID_SPLIT = .2
+SHUFFLE_DATASET = True
+N_EPOCH = 500
+LEARNING_RATE = 0.01
+
+# NN parameters
+SAMPLE_LEN = 1024
+SAMPLE_CH = 8
+CONV_CHANNELS = [80, 60, 60]
+CONV_KERNEL_SIZES = [251, 5, 5]
+POOL_KERNEL_SIZES = [2, 2, 2]
+DROPOUT = [0, 0, 0]
+FC_SIZES = [2048, 1024]
+N_CLASSES = 630
+
+
