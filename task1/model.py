@@ -5,7 +5,6 @@ import torch
 from torch import nn
 from torch.autograd import Variable
 import torch.nn.functional as F
-import matplotlib.pyplot as plt
 
 
 
@@ -56,8 +55,6 @@ class SincConv(nn.Module):
         f2_space = torch.matmul(f2_abs.view(-1, 1), self.__n_space.view(1, -1).to(device))
         g = 2 * (f2_abs.view(-1, 1).tile((1, self.__kernel_size)) * torch.sinc(2 * np.pi * f2_space) - \
                  f1_abs.view(-1, 1).tile((1, self.__kernel_size)) * torch.sinc(2 * np.pi * f1_space)) * self.__window.to(device)
-        #plt.plot(g[0, :].cpu().detach().numpy())
-        #plt.show() 
         g_ready = Variable(g.view(self.__out_channels, 1, self.__kernel_size).tile((1, self.__in_channels, 1)))
         out = F.conv1d(x, g_ready)
 
