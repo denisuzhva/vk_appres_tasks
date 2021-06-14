@@ -27,6 +27,7 @@ if __name__=="__main__":
                     DROPOUT, LRELU_SLOPE, DO_SINCCONV)
     model.to(device)
 
+    # Train the model
     train_model(DF_PATH, model, 
                 N_CLASSES, SAMPLE_LEN, SAMPLE_CH, 
                 BATCH_SIZE, N_EPOCH, LEARNING_RATE, 
