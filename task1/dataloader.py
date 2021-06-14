@@ -35,13 +35,15 @@ class TIMIT_dataset(Dataset):
         label = row["label"]
         sentence, _ = sf.read(path)
         sentence = sentence.astype(np.float32)
-        dsample = np.zeros((self.__n_channels, self.__sample_len))
+        full_sample = np.zeros((self.__n_channels, self.__sample_len))
         for c in range(self.__n_channels):
             sample_start = torch.randint(sentence.size - self.__sample_len, (1,))
             sample_end = sample_start + self.__sample_len
-            dsample[c] = sentence[sample_start:sample_end]
-        dsample = torch.from_numpy(dsample)
-        return dsample, label
+            sample = sentence[sample_start:sample_end]
+            sample = sample / sample.max()
+            full_sample[c] = sample
+        full_sample = torch.from_numpy(full_sample)
+        return full_sample, label
 
     def get_indices(self):
         indices = self.__df.index.values

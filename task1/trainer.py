@@ -1,27 +1,39 @@
 # trainer.py
 
 import numpy as np
+import pandas as pd
 import torch
-from torch.nn import CrossEntropyLoss
-from torch.optim import RMSprop
+from torch import nn
+from torch.optim import RMSprop, Adam, SGD
 from torch.utils.data import sampler, DataLoader 
 from dataloader import *
+import matplotlib.pyplot as plt
 
 
+
+def init_weights(m):
+    """Xavier weight initializer."""
+    if type(m) == nn.Linear:
+        nn.init.xavier_uniform_(m.weight)
+        m.bias.data.fill_(0.01)
+    if type(m) == nn.Conv1d:
+        nn.init.xavier_uniform_(m.weight)
 
 def train_model(df_path, model, n_classes, 
                 sample_length, sample_channels, 
                 batch_size, n_epochs, learning_rate, 
-                device, shuffle_dataset=True, valid_split=0.2):
+                device, log_df_path, model_dump_path, 
+                validate_each_n_epoch,
+                shuffle_dataset=True, valid_split=0.2):
 
+    # Load dataset
     dataset = TIMIT_dataset(df_path, sample_length, sample_channels)
     dataset_size = len(dataset)
     indices = dataset.get_indices()
 
-    # https://stackoverflow.com/questions/50544730/how-do-i-split-a-custom-dataset-into-training-and-test-datasets
+    # Split for train and validation
     split = int(np.floor(valid_split * dataset_size))
     if shuffle_dataset:
-        np.random.seed(0)
         np.random.shuffle(indices)
     train_indices, valid_indices = indices[split:], indices[:split]
 
@@ -30,34 +42,82 @@ def train_model(df_path, model, n_classes,
 
     train_loader = DataLoader(dataset, 
                               batch_size=batch_size, 
-                              sampler=train_sampler)
+                              sampler=train_sampler,
+                              pin_memory=True)
     valid_loader = DataLoader(dataset, 
                               batch_size=batch_size,
-                              sampler=valid_sampler)
-                              
-    crit = CrossEntropyLoss().to(device)
-    optimizer = RMSprop(model.parameters(), lr=learning_rate)
+                              sampler=valid_sampler,
+                              pin_memory=True)
 
+    n_train_batches = len(train_loader) 
+    n_valid_batches = len(valid_loader) 
+
+    # Loss and optimizer                 
+    crit = nn.NLLLoss()
+    optimizer = RMSprop(model.parameters(), lr=learning_rate, alpha=0.95, eps=1e-8)
+    model.apply(init_weights)
+
+    # Training iterations
+    log_header = True
     for epoch in range(n_epochs):
 
-        epoch_loss = 0.
-        #tr_accuracy = 0
+        if epoch % validate_each_n_epoch == 0:
+            do_eval = True
+        else:
+            do_eval = False
 
-        # Train
-        for batch_index, (data, labels) in enumerate(train_loader):
+        if do_eval:
+            tr_loss = 0.
+            tr_acc = 0.
+            vl_loss = 0.
+            vl_acc = 0.
+
+        # Training
+        model.train()
+        for batch_idx, (data, labels) in enumerate(train_loader):
             data = data.float().to(device)
             labels = labels.to(device)
-            pred = model.forward(data)
-            #labels_ohe = torch.nn.functional.one_hot(labels, num_classes=n_classes).to(device)
+
+            pred = model(data)
             loss = crit(pred, labels)
+
+            if do_eval:
+                tr_loss += loss.cpu().item()
+                pred_class = torch.argmax(pred, dim=1)
+                tr_acc += (pred_class == labels).float().mean().cpu().item()
+ 
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            batch_loss = torch.sum(loss)
-            epoch_loss += batch_loss.cpu().item()
 
-        print(epoch_loss)
+        if do_eval:
+            tr_loss = tr_loss / n_train_batches
+            tr_acc = tr_acc / n_train_batches
 
-        # Validation
-        #for batch_index, (data, labels) in enumerate(valid_loader):
-        #    #print(labels)
-        #    pass
+            # Validation
+            model.eval()
+            for batch_idx, (data, labels) in enumerate(valid_loader):
+                data = data.float().to(device)
+                labels = labels.to(device)
+
+                pred = model(data)
+                loss = crit(pred, labels)
+            
+                vl_loss += loss.cpu().item()
+                pred_classes = torch.argmax(pred, dim=1)
+                vl_acc += (pred_classes == labels).float().mean().cpu().item()
+
+            vl_loss = vl_loss / n_valid_batches
+            vl_acc = vl_acc / n_valid_batches
+
+            d = {"epoch": [epoch], "train_loss": [tr_loss], "train_acc": [tr_acc], "valid_loss": [vl_loss], "valid_acc": [vl_acc]}
+            print(d)
+            df = pd.DataFrame(data=d)
+            df.to_csv(log_df_path, mode='a', header=log_header, index=False)
+            log_header = False
+
+            torch.save(model, model_dump_path)
+
+
+
+
