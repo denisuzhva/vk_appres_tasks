@@ -1,6 +1,6 @@
 # Task 1
 
-## Problem statement
+## Task statement
 Implement an approach described in the paper ["Speaker Recognition from Raw Waveform with SincNet"](https://arxiv.org/abs/1808.00158).
 Set up experiments and compare the results with those proposed and illustrated in the article.
 
