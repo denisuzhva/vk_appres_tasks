@@ -32,7 +32,7 @@ Overall pipeline is outlined in [nn_pipeline.pdf](nn_pipeline.pdf):
 ## Data preparation
 
 For the series of experiments described in the [report](report.ipynb), the [TIMIT dataset](https://academictorrents.com/details/34e2b78745138186976cbc27939b1b34d18bd5b3) is exploited.
-This dataset is composed of 6300 spoken sentences stored in `.WAV` files, which correspond to 630 various speakers (10 sentences per speaker).
+This dataset is composed of 6300 spoken sentences stored in .WAV files, which correspond to 630 various speakers (10 sentences per speaker).
 The speakers can also be separated by their gender into two classes.
 With that being said, [timit_make_labels.py](timit_make_labels.py) allows to prepare a dataframe with label assignments for each sentence.
 Two labeling schemes are available: one obtains 630 classes, while the other extracts two gender classes.
