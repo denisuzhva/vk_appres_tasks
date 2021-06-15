@@ -11,7 +11,7 @@ DF_PATH = f"datasets/{TRAIN_DATASET_NAME}/items_labeled_{N_CLASSES}.csv"
 BATCH_SIZE = 256
 VALID_SPLIT = .2
 SHUFFLE_DATASET = True
-N_EPOCH = 100
+N_EPOCH = 300
 LEARNING_RATE = 0.001
 VALIDATE_EACH_N_EPOCH = 5
 
@@ -25,11 +25,11 @@ POOL_KERNEL_SIZES = [3, 3, 3]
 DROPOUT = [0, 0, 0]
 FC_SIZES = [2048, 2048, 2048]
 LRELU_SLOPE = 0.01
-DO_SINCCONV = True
+DO_SINCCONV = False
 
 # Log and weight dump paths
 if DO_SINCCONV:
-    prefix = "SincConv"
+    prefix = "SincNet"
 else:
     prefix = "CNN"
 LOG_DF_PATH = f"results/{CONF_N}_{prefix}_{TRAIN_DATASET_NAME}_{N_CLASSES}_log.csv"

@@ -4,12 +4,10 @@ import os
 import torch
 from model import SincNet
 from trainer import train_model
-from cfg.settings import *
 
 
 
-if __name__=="__main__":
-
+def main():
     # Get CUDA device if available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -34,4 +32,11 @@ if __name__=="__main__":
                 device, LOG_DF_PATH, MODEL_DUMP_PATH,
                 VALIDATE_EACH_N_EPOCH)
 
-    
+ 
+
+if __name__=="__main__":
+    from cfg.settings630 import *
+    main()
+
+    from cfg.settings2 import *
+    main()

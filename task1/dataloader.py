@@ -33,7 +33,7 @@ class TIMIT_dataset(Dataset):
         row = self.__df.iloc[idx]
         path = row["path"]
         label = row["label"]
-        sentence, _ = sf.read(path)
+        sentence, _ = sf.read(path) # TIMIT .WAV does not use conventional RIFF chunks
         sentence = sentence.astype(np.float32)
         full_sample = np.zeros((self.__n_channels, self.__sample_len))
         for c in range(self.__n_channels):

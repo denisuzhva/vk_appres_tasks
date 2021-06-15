@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+import time
 import torch
 from torch import nn
 from torch.optim import RMSprop, Adam, SGD
@@ -59,6 +60,8 @@ def train_model(df_path, model, n_classes,
 
     # Training iterations
     log_header = True
+    start_t = time.time()
+    min_valid_loss = 0
     for epoch in range(n_epochs):
 
         if epoch % validate_each_n_epoch == 0:
@@ -117,6 +120,8 @@ def train_model(df_path, model, n_classes,
             log_header = False
 
             torch.save(model, model_dump_path)
+    
+    print("t: ", time.time() - start_t)
 
 
 

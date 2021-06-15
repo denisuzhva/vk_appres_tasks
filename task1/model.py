@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 
 
-class SincConv(nn.Module):
+class SincConvMC(nn.Module):
     """A multi-channel implementation of a 1d sinc convolution layer."""
 
     @staticmethod
@@ -29,15 +29,16 @@ class SincConv(nn.Module):
         self.__in_channels = in_channels
         self.__out_channels = out_channels
         self.__kernel_size = kernel_size
+        self.__window = torch.hamming_window(kernel_size)
         f_lowest = torch.tensor(0.) # arguably may be bounded by 30 https://www.youtube.com/watch?v=YwnsqhDbcHQ
         f_highest = torch.tensor(fs / 2) 
         m_lowest = self.f_to_m(f_lowest)
         m_highest = self.f_to_m(f_highest)
-        self.__window = torch.hamming_window(kernel_size)
 
         # Random initialization on a mel interval [m_lowest, m_highest]
         m1_abs = torch.rand(out_channels) * (m_highest - m_lowest) / 2 + m_lowest
         m2_abs = m1_abs + torch.abs(torch.rand(out_channels) * (m_highest - m_lowest) / 2 + m_lowest - m1_abs) # f2 = f1 + |f2 - f1|
+        m1_abs = m1_abs / 2 # stretch toward lower frequencies a little
         f1_abs = self.m_to_f(m1_abs)
         f2_abs = self.m_to_f(m2_abs)
          
@@ -85,7 +86,7 @@ class SincNet(nn.Module):
 
         # 1st layer modules before general CNN
         if do_sincconv:
-            self.__conv1 = SincConv(in_channels, conv_n_filters[0], conv_kernel_sizes[0])
+            self.__conv1 = SincConvMC(in_channels, conv_n_filters[0], conv_kernel_sizes[0])
         else:
             self.__conv1 = nn.Conv1d(in_channels, conv_n_filters[0], conv_kernel_sizes[0])
         self.__pool1 = nn.MaxPool1d(pool_kernel_sizes[0])
