@@ -1,6 +1,6 @@
 # settings.py
 
-CONF_N = 0
+CONF_N = 1
 
 # Dataset path
 N_CLASSES = 2

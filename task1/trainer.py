@@ -113,7 +113,7 @@ def train_model(df_path, model, n_classes,
             vl_loss = vl_loss / n_valid_batches
             vl_acc = vl_acc / n_valid_batches
 
-            d = {"epoch": [epoch], "train_loss": [tr_loss], "train_acc": [tr_acc], "valid_loss": [vl_loss], "valid_acc": [vl_acc]}
+            d = {"epoch": [epoch], "train_loss": [tr_loss], "train_accuracy": [tr_acc], "validation_loss": [vl_loss], "validation_accuracy": [vl_acc]}
             print(d)
             df = pd.DataFrame(data=d)
             df.to_csv(log_df_path, mode='a', header=log_header, index=False)
