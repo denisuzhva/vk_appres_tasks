@@ -1,4 +1,4 @@
-# dataloader.py
+# dataset.py
 
 import numpy as np
 import pandas as pd 
@@ -16,7 +16,7 @@ class TIMIT_dataset(Dataset):
         Initialize the dataset.
 
         Args:
-            df_path: Path to a TIMIT dataframe prepared using timit_make_labels.py
+            df_path:    Path to a TIMIT dataframe prepared using timit_make_labels.py
             sample_len: Length of a data sample
             n_channels: Number of channels in a sample
         """
@@ -37,7 +37,7 @@ class TIMIT_dataset(Dataset):
         sentence = sentence.astype(np.float32)
         full_sample = np.zeros((self.__n_channels, self.__sample_len))
         for c in range(self.__n_channels):
-            sample_start = torch.randint(sentence.size - self.__sample_len, (1,))
+            sample_start = np.random.randint(sentence.size - self.__sample_len)
             sample_end = sample_start + self.__sample_len
             sample = sentence[sample_start:sample_end]
             sample = sample / sample.max()

@@ -23,7 +23,7 @@ Required packages:
 The SincConv layer with the network architecture are implemented in [model.py](model.py).
 Note that the implementation allows the SincConv layer to accept an input with multiple channels, in contrast to the single-channel version proposed in the [original paper](https://arxiv.org/abs/1808.00158).
 A model can be fed to the trainer ```train_model()``` function in [trainer.py](trainer.py), which also handles dataset split into train and validation parts.
-A dataset is loaded by a corresponding loader in [dataloader.py](dataloader.py).
+A dataset is loaded by a corresponding loader in [dataset.py](dataset.py).
 In [main.py](main.py), one can schedule training tasks for various configs defined in [cfg/](cfg/).
 Overall pipeline is outlined in [nn_pipeline.pdf](nn_pipeline.pdf):
 

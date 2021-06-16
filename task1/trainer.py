@@ -7,7 +7,7 @@ import torch
 from torch import nn
 from torch.optim import RMSprop, Adam, SGD
 from torch.utils.data import sampler, DataLoader 
-from dataloader import *
+from dataset import *
 import matplotlib.pyplot as plt
 
 
@@ -26,6 +26,25 @@ def train_model(df_path, model, n_classes,
                 device, log_df_path, model_dump_path, 
                 validate_each_n_epoch,
                 shuffle_dataset=True, valid_split=0.2):
+    """
+    The trainer function for network training and validation.
+
+    Args:
+        df_path:                Dataframe for the dataset maker
+        model:                  A model for training
+        n_classes:              Number of classes for classification
+        sample_length:          Length of one sample in a single channel
+        sample_channel:         Number of channels in a sample
+        batch_size:             Size of a batch
+        n_epochs:               Number of epochs
+        learning_rate:          Learning rate
+        device:                 Current device (cuda or cpu)
+        log_df_path:            Path for training logs
+        model_dump_path:        Path for the model to be stored
+        validate_each_n_epoch:  An interval between epochs with validation performed
+        shuffle_dataset:        True if wish to shuffle dataset
+        valid_split:            A proportion of the dataset used for validation  
+    """
 
     # Load dataset
     dataset = TIMIT_dataset(df_path, sample_length, sample_channels)

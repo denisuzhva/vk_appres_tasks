@@ -24,6 +24,15 @@ class SincConvMC(nn.Module):
         return f
 
     def __init__(self, in_channels, out_channels, kernel_size, fs=16000.):
+        """
+        Initialize SincConvMC layer.
+
+        Args:
+            in_channels:    Number of channels in a sample
+            out_channels:   Number of convolution kernels
+            kernel_size:    Length of one kernel
+            fs:             Sampling rate
+        """
         super().__init__()
 
         self.__in_channels = in_channels
@@ -54,6 +63,8 @@ class SincConvMC(nn.Module):
         f2_abs = f1_abs + self.__fb
         f1_space = torch.matmul(f1_abs.view(-1, 1), self.__n_space.view(1, -1).to(device))
         f2_space = torch.matmul(f2_abs.view(-1, 1), self.__n_space.view(1, -1).to(device))
+
+        # g as in the original paper
         g = 2 * (f2_abs.view(-1, 1).tile((1, self.__kernel_size)) * torch.sinc(2 * np.pi * f2_space) - \
                  f1_abs.view(-1, 1).tile((1, self.__kernel_size)) * torch.sinc(2 * np.pi * f1_space)) * self.__window.to(device)
         g_ready = Variable(g.view(self.__out_channels, 1, self.__kernel_size).tile((1, self.__in_channels, 1)))
@@ -80,6 +91,22 @@ class SincNet(nn.Module):
                  fc_sizes, n_classes, 
                  dropout_probs, lrelu_slope=0.01,
                  do_sincconv=False):
+        """
+        CNN pipeline with the possibility to make 1st conv layer be SincConv.
+
+        Args:
+            in_channels:        Number of channels in a sample
+            in_size:            Length of a sample
+            conv_n_filters:     List of amounts of kernels for each convolution module
+            conv_kernel_sizes:  List of kernel sizes for each convolution module
+            pool_kernel_sizes:  List of kernel sizes for each pooling module
+            fc_sizes:           List of amounts of neurons for each dense module
+            n_classes:          Number of classes
+            dropout_probs:      Probabilities for dropouts
+            lrelu_slope:        Slope of the LeakyReLU
+            do_sincconv:        True if 1st layer should be SincConv 
+        """
+
         super().__init__()
 
         shape0 = [in_channels, in_size] 
